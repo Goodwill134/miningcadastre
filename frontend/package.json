@@ -1,0 +1,37 @@
+{
+  "name": "cadastral-data-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.vue --fix"
+  },
+  "dependencies": {
+    "@vueuse/core": "^10.5.0",
+    "axios": "^1.6.5",
+    "ol": "^10.5.0",
+    "pinia": "^3.0.2",
+    "vue": "^3.4.19",
+    "vue-router": "^4.2.5",
+    "vue-toastification": "^2.0.0-rc.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.19.1",
+    "prettier": "^2.8.8",
+    "prettier-plugin-organize-imports": "^2.1.0",
+    "vite": "^5.0.12"
+  }
+}
