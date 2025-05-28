@@ -1,0 +1,64 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# Build output
+dist/
+build/
+coverage/
+
+# Environment variables
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Platformatic/Knex/DB
+*.sqlite3
+*.db
+*.db-journal
+
+# Misc
+*.tgz
+.idea/
+*.iml
+
+# Frontend build
+frontend/dist/
+frontend/node_modules/
+
+# Backend build
+backend/dist/
+backend/node_modules/
+
+# Platformatic
+backend/platformatic.db.json.lock
+
+# Test output
+*.test.js.snap
+
+# Local scripts
+backend/q
+backend/npx
+
+# Ignore generated files
+backend/cada-engine-backend@1.0.0
+
+# Ignore import files
+frontend/import.txt
+
+
+
+git config --global user.name "Goodwill"
+git config --global user.email "goodwillmandianike@gmail.com"

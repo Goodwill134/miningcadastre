@@ -37,10 +37,10 @@ let overlay = null;
 // Style for mine polygons
 const polygonStyle = new Style({
   fill: new Fill({
-    color: 'rgba(255, 100, 0, 0.3)'
+    color: 'rgba(255, 0, 0, 0.3)' // Red fill, semi-transparent
   }),
   stroke: new Stroke({
-    color: 'rgba(255, 100, 0, 0.8)',
+    color: 'rgba(255, 0, 0, 0.8)', // Red border
     width: 2
   })
 })
@@ -48,10 +48,10 @@ const polygonStyle = new Style({
 // Style for selected mine polygons
 const selectedPolygonStyle = new Style({
   fill: new Fill({
-    color: 'rgba(0, 150, 255, 0.7)'
+    color: 'rgba(255, 0, 0, 0.5)' // More opaque red for selected
   }),
   stroke: new Stroke({
-    color: 'rgba(0, 150, 255, 1)',
+    color: 'rgba(255, 0, 0, 1)', // Solid red border
     width: 5,
     lineDash: [15, 10],
     lineDashOffset: 0
@@ -62,18 +62,20 @@ const selectedPolygonStyle = new Style({
 // Style for location markers
 const markerStyle = new Style({
   image: new Icon({
-    src: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-red.png',
+    src: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
     scale: 0.5,
-    anchor: [0.5, 1]
+    anchor: [0.5, 1],
+    crossOrigin: 'anonymous'  // Add this to handle CORS
   })
 })
 
 // Style for selected location markers
 const selectedMarkerStyle = new Style({
   image: new Icon({
-    src: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-blue.png',
+    src: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
     scale: 0.5,
-    anchor: [0.5, 1]
+    anchor: [0.5, 1],
+    crossOrigin: 'anonymous'  // Add this to handle CORS
   })
 })
 
@@ -178,13 +180,14 @@ const zoomToMine = (mine) => {
       maxZoom: 15
     })
     
-    // Show popup
+    // Show popup with all mine attributes except geometry and id
     popupContent.value.innerHTML = `
       <div class='mine-popup'>
-        <h4>${mine['Mine Name']}</h4>
-        <p><strong>Mineral:</strong> ${mine.Mineral}</p>
-        <p><strong>District:</strong> ${mine.District}</p>
-        <p><strong>Licence No:</strong> ${mine['Licence No']}</p>
+        <h4>${mine['Mine Name'] || mine.mine_name}</h4>
+        ${Object.entries(mine)
+          .filter(([key]) => key !== 'geometry' && key !== 'id')
+          .map(([key, value]) => `<p><strong>${key}:</strong> ${value}</p>`)
+          .join('')}
       </div>
     `
     
@@ -204,13 +207,15 @@ onMounted(async () => {
   markerSource.value = new VectorSource()
   
   const polygonLayer = new VectorLayer({ 
-    source: polygonSource.value,
-    style: polygonStyle
+    source: polygonSource.value,  // Make sure source is set
+    style: polygonStyle,
+    zIndex: 1  // Add zIndex to control layer order
   })
   
   const markerLayer = new VectorLayer({
-    source: markerSource.value,
-    style: markerStyle
+    source: markerSource.value,  // Make sure source is set
+    style: markerStyle,
+    zIndex: 2  // Put markers above polygons
   })
   
   // Initialize map
@@ -238,14 +243,20 @@ onMounted(async () => {
   // Load mine data
   await loadMines()
 
+  // Add debug logging
+  console.log('Marker source features:', markerSource.value.getFeatures().length)
+  console.log('Polygon source features:', polygonSource.value.getFeatures().length)
+
   // Click handler for features
   map.value.on('singleclick', function (evt) {
     overlay.setPosition(undefined)
     
     // Check if clicked on a marker or polygon
     map.value.forEachFeatureAtPixel(evt.pixel, function (feature) {
-      const mine = feature.getProperties()
-      zoomToMine(mine)
+      const props = feature.getProperties()
+      if (props.id) {  // Only handle mine features
+        zoomToMine(props)
+      }
     })
   })
 })

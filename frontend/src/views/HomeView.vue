@@ -5,26 +5,38 @@
     
     <div class="stats">
       <div class="stat-card">
-        <h3>{{ mines.length }}</h3>
+        <h3>{{ filteredMines.length }}</h3>
         <p>Registered Mines</p>
       </div>
     </div>
+
+    <input
+      v-model="searchQuery"
+      type="text"
+      placeholder="Search by name, mineral, or district..."
+      class="search-input"
+    />
     
     <div class="layout">
       <div class="mine-list">
         <div 
           class="mine-card" 
-          v-for="mine in mines" 
+          v-for="mine in filteredMines" 
           :key="mine.id"
           @click="selectMine(mine)"
           :class="{ selected: selectedMine?.id === mine.id }"
         >
-          <h3>{{ mine['Mine Name'] }}</h3>
+          <h3>{{ mine.mine_name || mine['Mine Name'] }}</h3>
           <div class="mine-details">
-            <p><strong>Mineral:</strong> {{ mine.Mineral }}</p>
-            <p><strong>Area:</strong> {{ mine.Area }}</p>
-            <p><strong>District:</strong> {{ mine.District }}</p>
-            <p><strong>Licence No:</strong> {{ mine['Licence No'] }}</p>
+            <p v-for="(value, key) in mine" :key="key">
+              <strong>{{ key }}:</strong>
+              <span v-if="key === 'geometry'" style="color: red; word-break: break-all;">
+                {{ typeof value === 'string' ? value : JSON.stringify(value) }}
+              </span>
+              <span v-else>
+                {{ value }}
+              </span>
+            </p>
           </div>
         </div>
       </div>
@@ -48,7 +60,20 @@ export default {
   data() {
     return {
       mines: [],
-      selectedMine: null
+      selectedMine: null,
+      searchQuery: ''
+    }
+  },
+  computed: {
+    filteredMines() {
+      if (!this.searchQuery) return this.mines
+      const q = this.searchQuery.toLowerCase()
+      return this.mines.filter(mine => {
+        const name = (mine.mine_name || mine['Mine Name'] || '').toLowerCase()
+        const mineral = (mine.mineral || mine['Mineral'] || '').toLowerCase()
+        const district = (mine.district || mine['District'] || '').toLowerCase()
+        return name.includes(q) || mineral.includes(q) || district.includes(q)
+      })
     }
   },
   methods: {
@@ -105,6 +130,17 @@ export default {
 .stat-card h3 {
   margin: 0;
   font-size: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .mine-list {
