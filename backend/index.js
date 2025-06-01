@@ -2,7 +2,6 @@ import fastify from 'fastify'
 import fastifyCors from '@fastify/cors'
 import fastifyHelmet from '@fastify/helmet'
 import appConfig from './config/app.config.js'
-import { dbConfig } from './config/db.config.js'
 import appRoutes from './src/routes/index.js'
 
 console.log('Loaded configuration:', appConfig)
@@ -28,9 +27,6 @@ app.register(fastifyCors, {
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 });
 app.register(fastifyHelmet);
-
-// Database connection
-// app.register(require('@platformatic/db'), dbConfig);
 
 // Register routes
 app.register(appRoutes);

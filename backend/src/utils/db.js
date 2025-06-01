@@ -54,114 +54,6 @@ export const transaction = async (
   }
 }
 
-// Property management
-export const addProperty = async (
-  parcelId,
-  propertyType,
-  value,
-  unit
-) => {
-  const sql = `
-    INSERT INTO properties (parcel_id, property_type, value, unit)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-  `
-  return query(sql, [parcelId, propertyType, value, unit])
-}
-
-export const updateProperty = async (
-  id,
-  propertyType,
-  value,
-  unit
-) => {
-  const sql = `
-    UPDATE properties
-    SET property_type = $1,
-        value = $2,
-        unit = $3,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = $4
-    RETURNING *
-  `
-  return query(sql, [propertyType, value, unit, id])
-}
-
-export const deleteProperty = async (id) => {
-  const sql = `
-    DELETE FROM properties
-    WHERE id = $1
-    RETURNING id
-  `
-  return query(sql, [id])
-}
-
-export const getPropertiesByParcelId = async (parcelId) => {
-  const sql = `
-    SELECT id, parcel_id, property_type, value, unit, created_at, updated_at
-    FROM properties
-    WHERE parcel_id = $1
-    ORDER BY created_at DESC
-  `;
-  return query(sql, [parcelId]);
-};
-
-export const getPropertyById = async (propertyId) => {
-  const sql = `
-    SELECT id, parcel_id, property_type, value, unit, created_at, updated_at
-    FROM properties
-    WHERE id = $1
-  `;
-  return query(sql, [propertyId]);
-};
-
-// Owner management
-export const createOwner = async (name, contactInfo, address) => {
-  const sql = `
-    INSERT INTO owners (name, contact_info, address)
-    VALUES ($1, $2, $3)
-    RETURNING id, name, contact_info, address, created_at, updated_at
-  `;
-  return query(sql, [name, contactInfo, address]);
-};
-
-export const getAllOwners = async () => {
-  const sql = `
-    SELECT id, name, contact_info, address, created_at, updated_at
-    FROM owners
-    ORDER BY name ASC
-  `;
-  return query(sql);
-};
-
-export const getOwnerById = async (id) => {
-  const sql = `
-    SELECT id, name, contact_info, address, created_at, updated_at
-    FROM owners
-    WHERE id = $1
-  `;
-  return query(sql, [id]);
-};
-
-export const updateOwner = async (id, name, contactInfo, address) => {
-  const sql = `
-    UPDATE owners
-    SET name = $2, contact_info = $3, address = $4, updated_at = NOW()
-    WHERE id = $1
-    RETURNING id, name, contact_info, address, created_at, updated_at
-  `;
-  return query(sql, [id, name, contactInfo, address]);
-};
-
-export const deleteOwner = async (id) => {
-  const sql = `
-    DELETE FROM owners
-    WHERE id = $1
-    RETURNING id
-  `;
-  return query(sql, [id]);
-};
-
 // Mining claim operations
 export const createMiningClaim = async (claimNumber, claimType, status, holder, geometry) => {
   const sql = `
@@ -232,12 +124,10 @@ export const initDatabase = async () => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
     // Ensure spatial index exists for mines table
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_mines_geom ON mines USING GIST(geom);
     `);
-    
     await client.query('COMMIT');
   } catch (error) {
     await client.query('ROLLBACK');
